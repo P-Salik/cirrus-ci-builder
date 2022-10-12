@@ -1,16 +1,27 @@
 env:
-    token: "ENCRYPTED[ca23aa38ef6f0ad3a89fe1499d5e98bcba2f4fe9c2a26ec5c7a45db24f98a2f2f9fe0a44c5958db913871b0aba1fa414]"
-    chat_id: "ENCRYPTED[816a05e1d83f010ca1328f54a6fbd602a5d59a391399169091bc68a9e89979d469787c28a0f1584277e981689b5bc7d9]"
+    TG_TOKEN: "ENCRYPTED[4c959c9f47be4c6792608472dce13e00ace6030ca0ca4ca3f15226ff864a46eef84de7c8e68c8e4630d7978a665734bd]"
+    GH_TOKEN: "ENCRYPTED[b43986197e21df99dbc9a684bf4a2c413acb5bd7267eb8fd754af8dce7f8e25a1d0f982fffc90936ebe42ccfe47fb93b]"
+    CHAT_ID: "ENCRYPTED[9d7a5c44b2df303358f3cd8245f0375f2f7ef8259621905d7be768c4f8e1a883259c99294b0b14badc2d3ab527c18da5]"
 
 task:
-  name: "Scarlet-X-Kernel-Builder"
+  name: "Kernel-Builder"
   timeout_in: 2h
   container:
-      image: atomxorg/arch-linux:kernel
-      cpu: 8
-      memory: 32G
+      image: atomxorg/ubuntu:latest
+      cpu: 4
+      memory: 16G
+
+  env_script:
+      - env
+
+  Setup_script:
+      - apt update && apt-get install -y locales zstd git wget curl python2 python3 python-is-python3 make
+      - git config --global user.name P-Salik
+      - git config --global user.email peersalik16@gmqil.com
+      - git config --global credential.helper store
+      - echo "https://P-Salik:${GH_TOKEN}@github.com" > ~/.git-credentials
+      - ln -fs /usr/share/zoneinfo/Asia/Kolkata /etc/localtime && date
+      - locale-gen en_US.UTF-8
 
   Build_script:
-      - ln -fs /usr/share/zoneinfo/Asia/Kolkata /etc/localtime && date
-      - locale-gen en_US en_US.UTF-8
       - bash builder.sh
