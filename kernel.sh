@@ -23,6 +23,7 @@ BOT_BUILD_URL="https://api.telegram.org/bot$TOKEN/sendDocument"
 NAME='Realme C2'
 CODENAME='RMX1941'
 DCFG="RMX1941_defconfig"
+REGEN='1'
 
 # Paths
 KERNEL_DIR=$(pwd)
@@ -42,7 +43,7 @@ pass() {
 	GCC_64="$TOOLCHAIN/gcc64/bin/aarch64-linux-gnu-"
 	GCC_32="$TOOLCHAIN/gcc32/bin/arm-linux-gnueabihf-"
 	C_PATH="$TOOLCHAIN/clang"
-	compile
+	regen
 }
 export PATH=$C_PATH/bin:$PATH
 
@@ -66,6 +67,18 @@ muke() {
 		CROSS_COMPILE_ARM32=$GCC_32 \
 		CONFIG_NO_ERROR_ON_MISMATCH=y \
 		2>&1 | tee log.txt
+}
+
+regen() {
+	if [[ $REGEN == '1' ]]; then
+		CFLAG="$DCFG"
+		muke
+		cp work/.config $CONFIG
+		git add $CONFIG
+		git commit -s -m "defconfig: Regenerate"
+		git push
+	fi
+	compile
 }
 
 # Functions to send messages/files to telegram
