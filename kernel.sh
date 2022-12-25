@@ -23,7 +23,7 @@ BOT_BUILD_URL="https://api.telegram.org/bot$TOKEN/sendDocument"
 NAME='Realme C2'
 CODENAME='RMX1941'
 DCFG="RMX1941_defconfig"
-REGEN='0'
+REGEN='1'
 
 # Paths
 KERNEL_DIR=$(pwd)
