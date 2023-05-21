@@ -12,8 +12,8 @@ B='\033[1;34m'
 W='\033[1;37m'
 
 # User infomation
-USER='P-Salik'
-HOST='Cirrus'
+USER='PSalik'
+HOST='Winter'
 TOKEN=${TG_TOKEN}
 CHATID=${CHAT_ID}
 BOT_MSG_URL="https://api.telegram.org/bot$TOKEN/sendMessage"
@@ -23,7 +23,7 @@ BOT_BUILD_URL="https://api.telegram.org/bot$TOKEN/sendDocument"
 NAME='Realme C2'
 CODENAME='RMX1941'
 DCFG="RMX1941_defconfig"
-REGEN='1'
+REGEN='0'
 
 # Paths
 KERNEL_DIR=$(pwd)
@@ -38,14 +38,11 @@ CONFIG="$KERNEL_DIR/arch/arm64/configs/${DCFG}"
 
 # Flags to be passed to compile
 pass() {
-	CC='clang'
-	CC_TRIPLE='aarch64-linux-gnu-'
-	GCC_64="$TOOLCHAIN/gcc64/bin/aarch64-linux-gnu-"
-	GCC_32="$TOOLCHAIN/gcc32/bin/arm-linux-gnueabihf-"
-	C_PATH="$TOOLCHAIN/clang"
+	CC=aarch64-elf-gcc
+	GCC_64="aarch64-elf-"
+	GCC_32="arm-eabi-"
 	regen
 }
-export PATH=$C_PATH/bin:$PATH
 
 # Helper function to print error message
 error() {
@@ -57,14 +54,20 @@ error() {
 
 # Function to pass compilation flags
 muke() {
+	PATH="${TOOLCHAIN}/gcc/bin:${PATH}:${TOOLCHAIN}/gcc64/bin:/usr/bin:$PATH" \
 	make O=work $CFLAG ARCH=arm64 $FLAG \
 		CC=$CC \
 		KBUILD_BUILD_USER=$USER \
 		KBUILD_BUILD_HOST=$HOST \
-		PATH=$C_PATH/bin:$PATH \
-		CLANG_TRIPLE=$CC_TRIPLE \
 		CROSS_COMPILE=$GCC_64 \
 		CROSS_COMPILE_ARM32=$GCC_32 \
+		LD=aarch64-elf-ld.lld \
+		AR=llvm-ar \
+		NM=llvm-nm \
+		OBJCOPY=llvm-objcopy \
+		OBJDUMP=llvm-objdump \
+		CC=aarch64-elf-gcc \
+		STRIP=llvm-strip \
 		CONFIG_NO_ERROR_ON_MISMATCH=y \
 		2>&1 | tee log.txt
 }
@@ -162,14 +165,12 @@ zip_ak() {
 	cd $KERNEL_DIR
 
 	DIFF=$(($BUILD_END - $BUILD_START))
-	CONFIG_CC_VERSION_TEXT=$(head -n 1 $C_PATH/AndroidVersion.txt)
 	COMMIT_NAME=$(git show -s --format=%s)
 	COMMIT_HASH=$(git rev-parse --short HEAD)
 
 # Print the build information
 	tg_post_msg "
 	=========TEST Kernel=========
-	Compiler: <code>Clang $CONFIG_CC_VERSION_TEXT</code>
 	Linux Version: <code>$KV</code>
 	Maintainer: <code>$USER</code>
 	Device: <code>$NAME</code>
